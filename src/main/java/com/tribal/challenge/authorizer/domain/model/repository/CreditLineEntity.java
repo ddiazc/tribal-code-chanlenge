@@ -41,7 +41,8 @@ public class CreditLineEntity {
     @Column(name = "status")
     private String status;
 
+    @Builder.Default
     @Column(name = "failed_attempts")
-    private int failedAttempts;
+    private int failedAttempts = 0;
 
 }

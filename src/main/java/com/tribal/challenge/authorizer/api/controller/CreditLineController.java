@@ -31,6 +31,7 @@ public class CreditLineController {
     @ResponseStatus(HttpStatus.ACCEPTED)
     public CreditLineResultDTO request(@Valid @RequestBody final CreditLineDTO creditLineDTO) {
         final CreditLineCore creditLineCore = creditLineConverter.convertToCore(creditLineDTO);
+        creditLineService.preHandle(creditLineCore);
         return creditLineResultConverter.convertToApiDTO(creditLineService.evaluate(creditLineCore));
     }
 }

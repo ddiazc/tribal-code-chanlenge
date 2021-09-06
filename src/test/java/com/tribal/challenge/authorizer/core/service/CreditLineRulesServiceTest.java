@@ -3,6 +3,7 @@ package com.tribal.challenge.authorizer.core.service;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import com.tribal.challenge.authorizer.domain.model.core.CreditLineCore;
+import com.tribal.challenge.authorizer.repository.CreditLineApplicationRequestRepository;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -10,15 +11,19 @@ import java.math.RoundingMode;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 
 @SpringBootTest(classes = {CreditLineRulesServiceImpl.class})
 public class CreditLineRulesServiceTest {
+
+    @MockBean
+    private CreditLineApplicationRequestRepository creditLineApplicationRequestRepository;
 
     private CreditLineRulesServiceImpl creditLineRulesServiceImpl;
 
     @BeforeEach
     public void init() {
-        creditLineRulesServiceImpl = new CreditLineRulesServiceImpl();
+        creditLineRulesServiceImpl = new CreditLineRulesServiceImpl(creditLineApplicationRequestRepository);
     }
 
     @Test

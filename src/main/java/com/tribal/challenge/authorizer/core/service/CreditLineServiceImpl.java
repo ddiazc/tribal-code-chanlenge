@@ -7,9 +7,10 @@ import com.tribal.challenge.authorizer.domain.exception.FoundingTypeNotRecognize
 import com.tribal.challenge.authorizer.domain.model.core.CreditLineCore;
 import com.tribal.challenge.authorizer.domain.model.core.CreditLineResultCore;
 import com.tribal.challenge.authorizer.domain.model.core.CreditLineStatus;
-import com.tribal.challenge.authorizer.domain.model.repository.CreditLineEntity;
+import com.tribal.challenge.authorizer.domain.model.repository.CreditLineApplicationRequestEntity;
 import com.tribal.challenge.authorizer.domain.service.CreditLineRulesService;
 import com.tribal.challenge.authorizer.domain.service.CreditLineService;
+import com.tribal.challenge.authorizer.repository.CreditLineApplicationRequestRepository;
 import com.tribal.challenge.authorizer.repository.CreditLineRepository;
 
 import java.math.BigDecimal;
@@ -27,14 +28,32 @@ public class CreditLineServiceImpl implements CreditLineService {
     private CreditLineRulesService creditLineRulesService;
     private CreditLineRepository creditLineRepository;
     private CreditLineConverter creditLineConverter;
+    private CreditLineApplicationRequestRepository creditLineApplicationRequestRepository;
+
+    private CreditLineApplicationRequestEntity buildCreditLineApplicationRequestEntity(CreditLineCore creditLineCore) {
+        return CreditLineApplicationRequestEntity.builder()
+                .taxId(creditLineCore.getTaxId())
+                .build();
+    }
+
+    @Override
+    public void preHandle(CreditLineCore creditLine) {
+        final CreditLineCore creditLineCoreFromDatabase = creditLineConverter
+                .convertToCore(creditLineRepository.findById(creditLine.getTaxId()));
+        if (CreditLineStatus.ACCEPTED.toString().equals(creditLineCoreFromDatabase.getStatus())) {
+            creditLineRulesService.onOnceAcceptedCreditLineHandler(creditLineCoreFromDatabase);
+        } else if (CreditLineStatus.REJECTED.toString().equals(creditLineCoreFromDatabase.getStatus())) {
+            creditLineRulesService.onOnceRejectedCreditLineHandler(creditLineCoreFromDatabase);
+        }
+        creditLineApplicationRequestRepository.save(buildCreditLineApplicationRequestEntity(creditLine));
+    }
 
     @Override
     public CreditLineResultCore evaluate(final CreditLineCore creditLine) {
         final BigDecimal requestedCreditLine = creditLine.getRequestedCreditLine();
         final BigDecimal recommendedLineCredit = this.getRecommendedCreditLine(creditLine);
-        final CreditLineCore creditLineCoreFromDatabase = creditLineRepository.findById(creditLine.getTaxId())
-                .map(creditLineEntity -> creditLineConverter.convertToCore(creditLineEntity))
-                .orElseGet(() -> CreditLineCore.builder().build());
+        final CreditLineCore creditLineCoreFromDatabase = creditLineConverter
+                .convertToCore(creditLineRepository.findById(creditLine.getTaxId()));
 
         if (StringUtils.hasText(creditLineCoreFromDatabase.getTaxId())
                 && CreditLineStatus.ACCEPTED.toString().equals(creditLineCoreFromDatabase.getStatus())) {

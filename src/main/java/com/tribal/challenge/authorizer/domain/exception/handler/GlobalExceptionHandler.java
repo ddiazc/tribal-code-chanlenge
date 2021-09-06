@@ -1,6 +1,7 @@
 package com.tribal.challenge.authorizer.domain.exception.handler;
 
 import com.tribal.challenge.authorizer.domain.exception.FoundingTypeNotRecognizedException;
+import com.tribal.challenge.authorizer.domain.exception.TooManyRequestException;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -32,8 +33,13 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(FoundingTypeNotRecognizedException.class)
     public Map<String, String> handleValidationExceptions(
             FoundingTypeNotRecognizedException ex) {
-        Map<String, String> errors = Map.of("foundingType", ex.getMessage() + " not recognized");
-        return errors;
+        return Map.of("foundingType", ex.getMessage() + " not recognized");
+    }
+
+    @ResponseStatus(HttpStatus.TOO_MANY_REQUESTS)
+    @ExceptionHandler(TooManyRequestException.class)
+    public Map<String, String> handleTooManyRequest(TooManyRequestException ex){
+        return Map.of("message", ex.getMessage());
     }
 
 }

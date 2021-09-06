@@ -6,6 +6,8 @@ import com.tribal.challenge.authorizer.domain.model.api.CreditLineDTO;
 import com.tribal.challenge.authorizer.domain.model.core.CreditLineCore;
 import com.tribal.challenge.authorizer.domain.model.repository.CreditLineEntity;
 
+import java.util.Optional;
+
 import org.springframework.stereotype.Component;
 
 @Component
@@ -57,5 +59,10 @@ public class CreditLineConverter {
                 .status(creditLineEntity.getStatus())
                 .failedAttempts(creditLineEntity.getFailedAttempts())
                 .build();
+    }
+
+    public CreditLineCore convertToCore(final Optional<CreditLineEntity> creditLineEntity) {
+        return creditLineEntity.map(this::convertToCore)
+                .orElseGet(() -> CreditLineCore.builder().build());
     }
 }

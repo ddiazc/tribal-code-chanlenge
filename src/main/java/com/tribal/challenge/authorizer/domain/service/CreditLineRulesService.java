@@ -11,4 +11,9 @@ public interface CreditLineRulesService {
     BigDecimal getMonthlyRevenueCreditLine(CreditLineCore creditLineCore);
 
     BigDecimal getMaxRecommendedCreditLine(CreditLineCore creditLineCore);
+
+    void onOnceAcceptedCreditLineHandler(CreditLineCore creditLineCore);
+
+    void onOnceRejectedCreditLineHandler(CreditLineCore creditLineCore);
+
 }

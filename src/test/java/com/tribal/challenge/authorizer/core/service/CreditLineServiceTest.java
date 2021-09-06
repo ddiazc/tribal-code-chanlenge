@@ -10,6 +10,7 @@ import com.tribal.challenge.authorizer.domain.converter.CreditLineConverter;
 import com.tribal.challenge.authorizer.domain.model.core.CreditLineCore;
 import com.tribal.challenge.authorizer.domain.model.core.CreditLineResultCore;
 import com.tribal.challenge.authorizer.domain.service.CreditLineRulesService;
+import com.tribal.challenge.authorizer.repository.CreditLineApplicationRequestRepository;
 import com.tribal.challenge.authorizer.repository.CreditLineRepository;
 
 import java.math.BigDecimal;
@@ -28,12 +29,14 @@ public class CreditLineServiceTest {
     private CreditLineRepository creditLineRepository;
     @MockBean
     private CreditLineConverter creditLineConverter;
+    @MockBean
+    private CreditLineApplicationRequestRepository creditLineApplicationRequestRepository;
 
     private CreditLineServiceImpl creditLineService;
 
     @BeforeEach
     public void init() {
-        creditLineService = new CreditLineServiceImpl(creditLineRulesService, creditLineRepository, creditLineConverter);
+        creditLineService = new CreditLineServiceImpl(creditLineRulesService, creditLineRepository, creditLineConverter, creditLineApplicationRequestRepository);
     }
 
     @Test
