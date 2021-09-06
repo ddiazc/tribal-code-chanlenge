@@ -1,0 +1,13 @@
+spring:
+  data:
+    jpa.repositories.enabled: true
+  datasource:
+    initialization-mode: always
+    driverClassName: org.postgresql.Driver
+    url: jdbc:postgresql://localhost:5432/tribal
+    username: postgres
+    password: password
+    continueOnError: true
+  flyway:
+    enabled: true
+    locations: classpath:/db/scripts/migration

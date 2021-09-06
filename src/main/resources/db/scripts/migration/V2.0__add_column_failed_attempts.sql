@@ -1,0 +1,1 @@
+alter table credit_line_authorization add column failed_attempts int;

@@ -6,9 +6,11 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 
+import com.tribal.challenge.authorizer.domain.converter.CreditLineConverter;
 import com.tribal.challenge.authorizer.domain.model.core.CreditLineCore;
 import com.tribal.challenge.authorizer.domain.model.core.CreditLineResultCore;
 import com.tribal.challenge.authorizer.domain.service.CreditLineRulesService;
+import com.tribal.challenge.authorizer.repository.CreditLineRepository;
 
 import java.math.BigDecimal;
 
@@ -22,12 +24,16 @@ public class CreditLineServiceTest {
 
     @MockBean
     private CreditLineRulesService creditLineRulesService;
+    @MockBean
+    private CreditLineRepository creditLineRepository;
+    @MockBean
+    private CreditLineConverter creditLineConverter;
 
     private CreditLineServiceImpl creditLineService;
 
     @BeforeEach
     public void init() {
-        creditLineService = new CreditLineServiceImpl(creditLineRulesService);
+        creditLineService = new CreditLineServiceImpl(creditLineRulesService, creditLineRepository, creditLineConverter);
     }
 
     @Test

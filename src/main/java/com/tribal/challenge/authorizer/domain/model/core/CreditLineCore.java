@@ -15,4 +15,6 @@ public class CreditLineCore {
     private BigDecimal monthlyRevenue;
     private BigDecimal requestedCreditLine;
     private LocalDateTime requestedDate;
+    private String status;
+    private int failedAttempts;
 }
