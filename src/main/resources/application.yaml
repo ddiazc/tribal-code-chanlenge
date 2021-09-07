@@ -4,7 +4,7 @@ spring:
   datasource:
     initialization-mode: always
     driverClassName: org.postgresql.Driver
-    url: jdbc:postgresql://localhost:5432/tribal
+    url: ${DATASOURCE_URL:jdbc:postgresql://localhost:5432/tribal}
     username: postgres
     password: password
     continueOnError: true

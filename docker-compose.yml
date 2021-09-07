@@ -1,15 +1,18 @@
 version: '3.1'
 services:
   app:
-    container_name: app-springboot-postgresql
-    image: app-springboot-postgresql
+    container_name: app-tribal
+    image: app-tribal
     build: ./
     ports:
       - "8080:8080"
     depends_on:
       - dbpostgresql
+    environment:
+      - DATASOURCE_URL=jdbc:postgresql://db:5432/tribal
   dbpostgresql:
     image: postgres
+    container_name: db
     ports:
       - "5432:5432"
     environment:
