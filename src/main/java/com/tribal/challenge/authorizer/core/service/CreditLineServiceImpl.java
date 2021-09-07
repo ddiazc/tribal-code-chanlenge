@@ -2,16 +2,16 @@ package com.tribal.challenge.authorizer.core.service;
 
 import lombok.AllArgsConstructor;
 
-import com.tribal.challenge.authorizer.domain.converter.CreditLineConverter;
 import com.tribal.challenge.authorizer.domain.exception.FoundingTypeNotRecognizedException;
 import com.tribal.challenge.authorizer.domain.model.core.CreditLineCore;
 import com.tribal.challenge.authorizer.domain.model.core.CreditLineResultCore;
 import com.tribal.challenge.authorizer.domain.model.core.CreditLineStatus;
 import com.tribal.challenge.authorizer.domain.model.repository.CreditLineApplicationRequestEntity;
+import com.tribal.challenge.authorizer.domain.service.CreditLineApplicationRequestRepositoryService;
+import com.tribal.challenge.authorizer.domain.service.CreditLineRepositoryService;
 import com.tribal.challenge.authorizer.domain.service.CreditLineRulesService;
 import com.tribal.challenge.authorizer.domain.service.CreditLineService;
 import com.tribal.challenge.authorizer.repository.CreditLineApplicationRequestRepository;
-import com.tribal.challenge.authorizer.repository.CreditLineRepository;
 
 import java.math.BigDecimal;
 
@@ -26,34 +26,25 @@ public class CreditLineServiceImpl implements CreditLineService {
     private static final String STARTUP_FOUNDING_TYPE = "STARTUP";
 
     private CreditLineRulesService creditLineRulesService;
-    private CreditLineRepository creditLineRepository;
-    private CreditLineConverter creditLineConverter;
-    private CreditLineApplicationRequestRepository creditLineApplicationRequestRepository;
-
-    private CreditLineApplicationRequestEntity buildCreditLineApplicationRequestEntity(CreditLineCore creditLineCore) {
-        return CreditLineApplicationRequestEntity.builder()
-                .taxId(creditLineCore.getTaxId())
-                .build();
-    }
+    private CreditLineRepositoryService creditLineRepositoryService;
+    private CreditLineApplicationRequestRepositoryService creditLineApplicationRequestRepositoryService;
 
     @Override
     public void preHandle(CreditLineCore creditLine) {
-        final CreditLineCore creditLineCoreFromDatabase = creditLineConverter
-                .convertToCore(creditLineRepository.findById(creditLine.getTaxId()));
+        final CreditLineCore creditLineCoreFromDatabase = creditLineRepositoryService.findById(creditLine.getTaxId());
         if (CreditLineStatus.ACCEPTED.toString().equals(creditLineCoreFromDatabase.getStatus())) {
             creditLineRulesService.onOnceAcceptedCreditLineHandler(creditLineCoreFromDatabase);
         } else if (CreditLineStatus.REJECTED.toString().equals(creditLineCoreFromDatabase.getStatus())) {
             creditLineRulesService.onOnceRejectedCreditLineHandler(creditLineCoreFromDatabase);
         }
-        creditLineApplicationRequestRepository.save(buildCreditLineApplicationRequestEntity(creditLine));
+        creditLineApplicationRequestRepositoryService.save(creditLine);
     }
 
     @Override
     public CreditLineResultCore evaluate(final CreditLineCore creditLine) {
         final BigDecimal requestedCreditLine = creditLine.getRequestedCreditLine();
         final BigDecimal recommendedLineCredit = this.getRecommendedCreditLine(creditLine);
-        final CreditLineCore creditLineCoreFromDatabase = creditLineConverter
-                .convertToCore(creditLineRepository.findById(creditLine.getTaxId()));
+        final CreditLineCore creditLineCoreFromDatabase = creditLineRepositoryService.findById(creditLine.getTaxId());
 
         if (StringUtils.hasText(creditLineCoreFromDatabase.getTaxId())
                 && CreditLineStatus.ACCEPTED.toString().equals(creditLineCoreFromDatabase.getStatus())) {
@@ -69,7 +60,7 @@ public class CreditLineServiceImpl implements CreditLineService {
         final CreditLineCore creditLineCoreToSave = this.buildCreditLineWithStatus(creditLine,
                 creditLineCoreFromDatabase,
                 creditLineStatus);
-        creditLineRepository.save(creditLineConverter.convertToEntity(creditLineCoreToSave));
+        creditLineRepositoryService.save(creditLineCoreToSave);
 
         return CreditLineResultCore.builder()
                 .status(creditLineStatus.toString())

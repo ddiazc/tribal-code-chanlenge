@@ -4,8 +4,8 @@ import lombok.AllArgsConstructor;
 
 import com.tribal.challenge.authorizer.domain.exception.TooManyRequestException;
 import com.tribal.challenge.authorizer.domain.model.core.CreditLineCore;
+import com.tribal.challenge.authorizer.domain.service.CreditLineApplicationRequestRepositoryService;
 import com.tribal.challenge.authorizer.domain.service.CreditLineRulesService;
-import com.tribal.challenge.authorizer.repository.CreditLineApplicationRequestRepository;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -22,7 +22,7 @@ public class CreditLineRulesServiceImpl implements CreditLineRulesService {
     private static final BigDecimal FIVE = BigDecimal.valueOf(5);
     private static final int SCALE = 2;
 
-    private CreditLineApplicationRequestRepository creditLineApplicationRequestRepository;
+    private CreditLineApplicationRequestRepositoryService creditLineApplicationRequestRepositoryService;
 
     @Override
     public BigDecimal getCashBalanceCreditLine(CreditLineCore creditLineCore) {
@@ -46,7 +46,7 @@ public class CreditLineRulesServiceImpl implements CreditLineRulesService {
     public void onOnceAcceptedCreditLineHandler(CreditLineCore creditLineCore) {
         final LocalDateTime nowMinusTwoMinutes = LocalDateTime.now()
                 .minus(2, ChronoUnit.MINUTES);
-        final int lastRequestCount = creditLineApplicationRequestRepository.countLastRequest(creditLineCore.getTaxId(), nowMinusTwoMinutes);
+        final int lastRequestCount = creditLineApplicationRequestRepositoryService.countLastRequest(creditLineCore.getTaxId(), nowMinusTwoMinutes);
         if (lastRequestCount >= 3) {
             throw new TooManyRequestException("Too many request");
         }
@@ -61,7 +61,7 @@ public class CreditLineRulesServiceImpl implements CreditLineRulesService {
 
         final LocalDateTime nowMinusThirtySeconds = LocalDateTime.now()
                 .minus(30, ChronoUnit.SECONDS);
-        final int lastRequestCount = creditLineApplicationRequestRepository.countLastRequest(creditLineCore.getTaxId(), nowMinusThirtySeconds);
+        final int lastRequestCount = creditLineApplicationRequestRepositoryService.countLastRequest(creditLineCore.getTaxId(), nowMinusThirtySeconds);
         if (lastRequestCount >= 1) {
             throw new TooManyRequestException("Too many request");
         }
